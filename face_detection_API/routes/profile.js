@@ -1,15 +1,13 @@
 const express = require('express')
+const passport = require('passport')
 const router = express.Router()
 
 const User = require('../models/User')
 
-router.get('/:id', (req, res) => {
- const { id } = req.params
- User.findById(id)
-  .then(user => {
-   const currentProfile = { name: user.fullName, email: user.email }
-   res.json(currentProfile)
-  })
+router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const { id } = req.user
+  User.findById(id)
+   .then(user => res.json(user.fullName))
 })
 router.post('/edit/:id', (req, res) => {
   const { id } = req.params

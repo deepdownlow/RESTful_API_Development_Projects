@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+const passport = require('passport')
 const cors = require('cors')
 
 const app = express()
@@ -16,6 +17,9 @@ mongoose.connect(db, {useNewUrlParser: true})
 app.use(cors())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
+
+app.use(passport.initialize())
+require('./config/passport')(passport)
 
 app.use('/user', user)
 app.use('/profile', profile)

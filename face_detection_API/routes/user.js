@@ -1,5 +1,8 @@
 const express = require('express')
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const passport = require('passport')
+const keys = require('../config/keys')
 const router = express.Router()
 
 const User = require(`../models/User`)
@@ -16,7 +19,10 @@ router.post('/signin', (req, res) => {
    bcrypt.compare(password, user.password)
     .then(isMatch => {
      if(isMatch){
-      res.json({success: `true`, user: user.email})
+      const payload = { id: user.id, name: user.fullName }
+      jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, (err, token) => {
+        res.json({success: `true`, token: `Bearer ${token}`})
+      })
      } else {
       res.status(400).json({error: `Invalid password`})
      }
@@ -50,10 +56,21 @@ router.post('/register', (req, res) => {
   })
   .catch(err => console.log(err))
 })
-router.delete('/delete/:id', (req, res) => {
-  const { id } = req.params
+router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const { id } = req.user
+  User.findById(id)
+   .then(user => {
+     const currentUser = {
+       name: user.fullName,
+       email: user.email
+     }
+     res.json(currentUser)
+   })
+})
+router.delete('/delete-account', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const { id } = req.user
   User.findByIdAndDelete(id)
-   .then(() => res.json({msg: `user has been removed from our database`}))
+   .then(() => res.json({msg:`account has been deleted`}))
    .catch(err => console.log(err))
 })
 
