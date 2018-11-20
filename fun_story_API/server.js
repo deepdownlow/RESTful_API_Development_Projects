@@ -9,13 +9,14 @@ const passport = require('passport')
 const methodOverride = require('method-override')
 const app = express()
 
-const { truncate, noTag, formatTime } = require('./helper/hbs')
+const { truncate, noTag, formatTime, editIcon } = require('./helper/hbs')
 
 app.engine('handlebars', exphbs({
  helpers: {
   truncate,
   noTag,
-  formatTime
+  formatTime,
+  editIcon
  },
  defaultLayout: 'main'
 }))
